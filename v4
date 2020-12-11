@@ -1,0 +1,51 @@
+function readSpreadsheet() {
+    var sheet = SpreadsheetApp.getActiveSheet();                             //get the current spreadsheet
+    var rows = sheet.getDataRange();                                         //get the rows in the sheet
+    var numRows = rows.getNumRows();                                         //get the number of rows
+    var values = rows.getValues();                                           //get the contents of the rows                                     
+                                     
+  for (var i = 1; i < numRows; i++) {                                      //step through rows
+    var row = values [i];                                                  //get values of current row
+    if (row[2] == "") {                                                    //check to see if url has not already been created
+      var projectTitle = row[0];                                           //get the project folder name
+      var projectFolderLocation = row[1];                                  //get the project folder parent
+      var folderUrl = makeNewFolder(projectTitle, projectFolderLocation);  //create project folder, return drive location url
+      var folderLink = folderUrl.getUrl();                                 //get url link
+      var cell = sheet.getRange(i+1,3);                                    //get location of url column
+      cell.setValue(folderLink);                                           //write url to url column cell
+    }
+  } 
+}
+
+
+function makeNewFolder(projectTitle, projectFolderLocation ) {                            //Create new project folders
+  
+  var folderName= ["01_Admin", "02_Production (go/gds-da-playbook)", "03 Distribution/Archive"];       //Define Array of Folder names 
+  var projectCode = projectTitle.split('[').pop().split(']')[0] + "raw"
+  var prodSubFolders= ["Test Footage", `${projectCode}`]
+  
+
+ var gdsFolder = DriveApp.getFoldersByName(projectFolderLocation).next();     //Get location for new folders
+ gdsFolder.createFolder(projectTitle);                                        //Create new master project folder
+ 
+ var gdsFolder = DriveApp.getFoldersByName(projectTitle).next();              //Get new master project folder location
+  for(var i=0; i<3; i++) {                                                     //Loop to build subfolders
+    gdsFolder.createFolder(folderName[i]);                                        //Create new subfolder 
+    }
+ 
+var prodFolder = DriveApp.getFoldersByName("02_Production (go/gds-da-playbook)").next();
+
+  for(var j=0; j<2; j++) {                                                     //Loop to build subfolders
+    prodFolder.createFolder(prodSubFolders[j]);                                        //Create new subfolder 
+    }
+
+
+  return gdsFolder;                                                                  //return the parent project folder location
+}
+
+
+
+
+
+
+
